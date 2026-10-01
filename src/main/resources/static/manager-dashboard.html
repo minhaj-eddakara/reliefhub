@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camp Manager Portal - ReliefHub</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Emergency Topbar -->
+  <aside class="emergency-topbar" style="background: linear-gradient(90deg, #92400e, #d97706);">
+    <div class="live-pulse">
+      <div class="pulse-dot"></div>
+      <span id="mgr-camp-pill">Camp Operations Command</span>
+    </div>
+    <div class="contacts">
+      <span class="contact-item">District HQ: <strong>1077</strong></span>
+      <span class="contact-item">Medical Emergency: <strong>108</strong></span>
+    </div>
+  </aside>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container-fluid nav-content">
+      <a href="index.html" class="brand">
+        <div class="brand-icon" style="background: linear-gradient(135deg, #d97706, #ea580c);">&#9875;</div>
+        <div>
+          <span>ReliefHub</span>
+          <span class="brand-tag">Camp Manager Portal</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <div class="user-pill">
+          <div class="user-avatar" style="background:#d97706;" id="manager-avatar">M</div>
+          <span id="manager-name">Camp Manager</span>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="logoutUser()">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div style="font-size:0.85rem; color:#94a3b8;">Assigned Camp</div>
+        <div style="font-weight:700; color:#fff; font-size:1.05rem;" id="side-camp-name">Loading Camp...</div>
+        <span class="sidebar-role-badge badge-manager">Camp Manager</span>
+      </div>
+
+      <ul class="sidebar-nav">
+        <li>
+          <a href="#camp-info" class="active" onclick="switchTab('camp-info', this)">
+            <span>&#127973;</span> Camp &amp; Capacity
+          </a>
+        </li>
+        <li>
+          <a href="#victims" onclick="switchTab('victims', this)">
+            <span>&#128101;</span> Assigned Victims &amp; Requests
+          </a>
+        </li>
+        <li>
+          <a href="#supplies" onclick="switchTab('supplies', this)">
+            <span>&#128230;</span> Supplies &amp; Assets
+          </a>
+        </li>
+        <li>
+          <a href="#incidents" onclick="switchTab('incidents', this)">
+            <span>&#9888;</span> Incident Reports
+          </a>
+        </li>
+        <li>
+          <a href="#analytics" onclick="switchTab('analytics', this)">
+            <span>&#128202;</span> Camp Analytics
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="btn btn-outline btn-sm" style="width:100%; color:#cbd5e1; border-color:#334155;" onclick="loadManagerData()">
+          &#8635; Refresh Camp Data
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- =====================================================================
+           TAB 1: CAMP OVERVIEW & CAPACITY
+           ===================================================================== -->
+      <section id="tab-camp-info" class="tab-pane active">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title" id="page-camp-title">Camp Capacity &amp; Resource Status</h1>
+            <p class="page-subtitle" id="page-camp-location">Location details</p>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-update-capacity')">&#9999; Update Beds &amp; Capacity</button>
+            <button class="btn btn-warning btn-sm" onclick="openModal('modal-file-incident')">&#9888; Report Emergency Incident</button>
+          </div>
+        </div>
+
+        <!-- KPI Metrics Grid -->
+        <div class="kpi-grid">
+          <div class="stat-card stat-primary">
+            <div class="stat-header">
+              <span class="stat-label">Total Bed Capacity</span>
+              <div class="stat-icon">&#128719;</div>
+            </div>
+            <div class="stat-value" id="kpi-total-cap">0</div>
+            <div class="stat-help">Maximum registered shelter beds</div>
+          </div>
+
+          <div class="stat-card stat-success">
+            <div class="stat-header">
+              <span class="stat-label">Available Space (Beds)</span>
+              <div class="stat-icon">&#10004;</div>
+            </div>
+            <div class="stat-value" id="kpi-avail-space">0</div>
+            <div class="stat-help">Vacant spaces ready for intake</div>
+          </div>
+
+          <div class="stat-card stat-warning">
+            <div class="stat-header">
+              <span class="stat-label">Currently Accommodated</span>
+              <div class="stat-icon">&#128101;</div>
+            </div>
+            <div class="stat-value" id="kpi-occupied-beds">0</div>
+            <div class="stat-help" id="kpi-occupancy-rate">0% Occupancy Rate</div>
+          </div>
+
+          <div class="stat-card stat-danger">
+            <div class="stat-header">
+              <span class="stat-label">Assigned Requests</span>
+              <div class="stat-icon">&#128221;</div>
+            </div>
+            <div class="stat-value" id="kpi-assigned-req">0</div>
+            <div class="stat-help">Active victim relief orders</div>
+          </div>
+        </div>
+
+        <!-- Camp Details Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">&#127968; Camp Profile &amp; Occupancy Bar</h3>
+          </div>
+          <div class="card-body">
+            <div style="margin-bottom:1.5rem;" id="camp-occupancy-bar-container">
+              <!-- Occupancy Bar rendered via JS -->
+            </div>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1.5rem; background:#f8fafc; padding:1.25rem; border-radius:10px; border:1px solid #e2e8f0;">
+              <div>
+                <small style="color:#64748b; font-weight:600; text-transform:uppercase;">Camp Identifier</small>
+                <div style="font-size:1.1rem; font-weight:700; color:#1e3a8a;" id="info-camp-id">-</div>
+              </div>
+              <div>
+                <small style="color:#64748b; font-weight:600; text-transform:uppercase;">Exact Physical Location</small>
+                <div style="font-size:1rem; font-weight:600;" id="info-camp-location">-</div>
+              </div>
+              <div>
+                <small style="color:#64748b; font-weight:600; text-transform:uppercase;">Manager in Charge</small>
+                <div style="font-size:1rem; font-weight:600;" id="info-camp-manager">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 2: ASSIGNED VICTIMS & REQUESTS
+           ===================================================================== -->
+      <section id="tab-victims" class="tab-pane" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Assigned Victims &amp; Aid Requests</h1>
+            <p class="page-subtitle">Confirm victim arrivals, manage temporary shelter check-ins, and update aid fulfillment status.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Victim Name &amp; Contact</th>
+                  <th>Request Type</th>
+                  <th>Date</th>
+                  <th>Details / Situation</th>
+                  <th>Current Status</th>
+                  <th>Manager Actions</th>
+                </tr>
+              </thead>
+              <tbody id="mgr-requests-tbody">
+                <tr><td colspan="7" style="text-align:center;">Loading assigned requests...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 3: SUPPLIES & ASSETS
+           ===================================================================== -->
+      <section id="tab-supplies" class="tab-pane" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Relief Supplies &amp; Asset Management</h1>
+            <p class="page-subtitle">Monitor and update critical rations, clean drinking water, medical kits, and blankets.</p>
+          </div>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-update-supplies')">&#9999; Edit Supplies Inventory</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">&#128230; Current On-Site Supplies Log</h3>
+          </div>
+          <div class="card-body">
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:1.5rem; font-size:1.05rem; line-height:1.8;" id="supplies-text-display">
+              Loading supplies...
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 4: INCIDENT REPORTS
+           ===================================================================== -->
+      <section id="tab-incidents" class="tab-pane" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Camp Incident Reports</h1>
+            <p class="page-subtitle">Submit official incident alerts directly to District Command and external agencies.</p>
+          </div>
+          <div>
+            <button class="btn btn-warning btn-sm" onclick="openModal('modal-file-incident')">&#9888; Submit Incident Report</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">&#128227; Recorded Incidents for this Camp</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Report ID</th>
+                  <th>Category</th>
+                  <th>Date Logged</th>
+                  <th>Incident Details &amp; Operational Notes</th>
+                </tr>
+              </thead>
+              <tbody id="mgr-incidents-tbody">
+                <tr><td colspan="4" style="text-align:center;">Loading incidents...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 5: CAMP ANALYTICS
+           ===================================================================== -->
+      <section id="tab-analytics" class="tab-pane" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Camp Analytics &amp; Operations Summary</h1>
+            <p class="page-subtitle">Consolidated view of resource distribution, intake statistics, and operational readiness.</p>
+          </div>
+          <div>
+            <button class="btn btn-outline btn-sm" onclick="window.print()">&#128424; Print Camp Status Sheet</button>
+          </div>
+        </div>
+
+        <div class="card" style="padding:2rem;">
+          <h2 style="font-size:1.4rem; color:#1e3a8a; margin-bottom:1rem;" id="analytics-camp-heading">Relief Camp Operations Report</h2>
+          <div style="border-bottom:2px solid #0f172a; margin-bottom:1.5rem; padding-bottom:0.5rem; display:flex; justify-content:space-between;">
+            <span id="analytics-date">Generated: Today</span>
+            <span>ReliefHub Disaster Management Framework</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-bottom:2rem;">
+            <div>
+              <h4 style="color:#0f172a; margin-bottom:0.75rem;">Capacity &amp; Space Analysis</h4>
+              <ul style="list-style:none; line-height:2.2; font-size:0.95rem;">
+                <li>Total Bed Capacity: <strong id="an-cap">0</strong></li>
+                <li>Current Available Beds: <strong id="an-avail" style="color:#059669;">0</strong></li>
+                <li>Current Bed Occupancy: <strong id="an-occ" style="color:#dc2626;">0</strong></li>
+                <li>Utilization Level: <strong id="an-pct">0%</strong></li>
+              </ul>
+            </div>
+            <div>
+              <h4 style="color:#0f172a; margin-bottom:0.75rem;">Assistance Requests Overview</h4>
+              <ul style="list-style:none; line-height:2.2; font-size:0.95rem;">
+                <li>Total Assigned: <strong id="an-total-req">0</strong></li>
+                <li>In Progress / Arriving: <strong id="an-prog-req" style="color:#d97706;">0</strong></li>
+                <li>Accommodated / Resolved: <strong id="an-res-req" style="color:#059669;">0</strong></li>
+                <li>Incident Reports Filed: <strong id="an-inc-count">0</strong></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- =====================================================================
+       MODALS
+       ===================================================================== -->
+
+  <!-- Modal: Update Capacity -->
+  <div class="modal-backdrop" id="modal-update-capacity">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">&#9999; Update Bed Capacity &amp; Space</h3>
+        <button class="modal-close" onclick="closeModal('modal-update-capacity')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-update-capacity">
+          <div class="form-group">
+            <label class="form-label" for="uc-capacity">Total Camp Capacity (Beds)</label>
+            <input type="number" id="uc-capacity" class="form-control" min="1" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="uc-available">Available Beds Remaining</label>
+            <input type="number" id="uc-available" class="form-control" min="0" required>
+            <small style="color:#64748b;">Update as victims arrive or get relocated.</small>
+          </div>
+
+          <div class="modal-footer" style="padding:0; margin-top:1.5rem; background:transparent;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modal-update-capacity')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Update Supplies -->
+  <div class="modal-backdrop" id="modal-update-supplies">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">&#128230; Update Supplies &amp; Asset Inventory</h3>
+        <button class="modal-close" onclick="closeModal('modal-update-supplies')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-update-supplies">
+          <div class="form-group">
+            <label class="form-label" for="us-supplies">Current Supplies Inventory (Food, Water, Medical, Blankets)</label>
+            <textarea id="us-supplies" class="form-control" rows="5" required></textarea>
+          </div>
+
+          <div class="modal-footer" style="padding:0; margin-top:1.5rem; background:transparent;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modal-update-supplies')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Inventory</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: File Incident Report -->
+  <div class="modal-backdrop" id="modal-file-incident">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">&#9888; Submit Camp Incident Report</h3>
+        <button class="modal-close" onclick="closeModal('modal-file-incident')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-file-incident">
+          <div class="form-group">
+            <label class="form-label" for="fi-type">Incident Category</label>
+            <select id="fi-type" class="form-select" required>
+              <option value="Incident Report">General Incident</option>
+              <option value="Medical Emergency">Medical Emergency</option>
+              <option value="Resource Shortage">Resource / Food Shortage</option>
+              <option value="Structural Hazard">Infrastructure / Structural Hazard</option>
+              <option value="Weather Alert">Surge / Weather Influx</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="fi-details">Incident Details, Severity &amp; External Assistance Needed</label>
+            <textarea id="fi-details" class="form-control" rows="4" placeholder="Detail the situation clearly for District Command..." required></textarea>
+          </div>
+
+          <div class="modal-footer" style="padding:0; margin-top:1.5rem; background:transparent;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modal-file-incident')">Cancel</button>
+            <button type="submit" class="btn btn-warning">Transmit Report to Admin</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Update Victim Request Status -->
+  <div class="modal-backdrop" id="modal-victim-status">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">&#128221; Update Victim Request Status</h3>
+        <button class="modal-close" onclick="closeModal('modal-victim-status')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-victim-status">
+          <input type="hidden" id="vst-req-id">
+          <p id="vst-summary" style="margin-bottom:1rem; font-size:0.9rem; background:#f8fafc; padding:0.75rem; border-radius:6px;"></p>
+
+          <div class="form-group">
+            <label class="form-label" for="vst-status">Status</label>
+            <select id="vst-status" class="form-select" required>
+              <option value="Assigned">Assigned (Not Yet Arrived)</option>
+              <option value="In-Progress">In-Progress / Accommodated</option>
+              <option value="Resolved">Resolved / Relief Completed</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="vst-notes">Manager Progress Notes</label>
+            <input type="text" id="vst-notes" class="form-control" placeholder="e.g. Victim arrived safely at Bed #12, given food kit.">
+          </div>
+
+          <div class="modal-footer" style="padding:0; margin-top:1.5rem; background:transparent;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modal-victim-status')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Update Status</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    let currentCamp = null;
+    let campRequests = [];
+    let campIncidents = [];
+
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+      const target = document.getElementById(`tab-${tabId}`);
+      if (target) target.style.display = 'block';
+
+      document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+      if (el) el.classList.add('active');
+    }
+
+    async function initManagerDashboard() {
+      const user = await verifyAuth(['CAMP_MANAGER']);
+      if (!user) return;
+
+      document.getElementById('manager-name').textContent = user.name;
+      document.getElementById('manager-avatar').textContent = user.name.charAt(0);
+
+      await loadManagerData();
+    }
+
+    async function loadManagerData() {
+      try {
+        const campRes = await apiRequest('/camps/my-camp');
+        if (campRes.success && campRes.data) {
+          currentCamp = campRes.data;
+          renderCampDetails(currentCamp);
+          await Promise.all([
+            loadCampRequests(currentCamp.campId),
+            loadCampIncidents(currentCamp.campId)
+          ]);
+          updateAnalytics();
+        }
+      } catch (err) {
+        showToast('Could not load assigned camp: ' + err.message, 'error');
+        document.getElementById('side-camp-name').textContent = 'No Camp Assigned';
+      }
+    }
+
+    function renderCampDetails(camp) {
+      document.getElementById('side-camp-name').textContent = camp.campName;
+      document.getElementById('mgr-camp-pill').textContent = `${camp.campName} (ID: ${camp.campId})`;
+      document.getElementById('page-camp-title').textContent = camp.campName;
+      document.getElementById('page-camp-location').textContent = camp.location;
+
+      const totalCap = camp.capacity || 0;
+      const avail = camp.availableSpace || 0;
+      const occupied = Math.max(0, totalCap - avail);
+      const pct = totalCap > 0 ? Math.round((occupied / totalCap) * 100) : 0;
+
+      document.getElementById('kpi-total-cap').textContent = totalCap;
+      document.getElementById('kpi-avail-space').textContent = avail;
+      document.getElementById('kpi-occupied-beds').textContent = occupied;
+      document.getElementById('kpi-occupancy-rate').textContent = `${pct}% Occupancy Rate`;
+
+      document.getElementById('info-camp-id').textContent = camp.campId;
+      document.getElementById('info-camp-location').textContent = camp.location;
+      document.getElementById('info-camp-manager').textContent = `${camp.managerName} (${camp.managerPhone})`;
+
+      document.getElementById('camp-occupancy-bar-container').innerHTML = renderCapacityBar(occupied, totalCap);
+      document.getElementById('supplies-text-display').textContent = camp.supplies;
+
+      // Prefill modals
+      document.getElementById('uc-capacity').value = totalCap;
+      document.getElementById('uc-available').value = avail;
+      document.getElementById('us-supplies').value = camp.supplies;
+    }
+
+    async function loadCampRequests(campId) {
+      const res = await apiRequest(`/requests/camp/${campId}`);
+      if (res.success && res.data) {
+        campRequests = res.data;
+        document.getElementById('kpi-assigned-req').textContent = campRequests.length;
+
+        const tbody = document.getElementById('mgr-requests-tbody');
+        if (campRequests.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No victims currently assigned to this camp.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = campRequests.map(r => `
+          <tr>
+            <td><strong>${r.requestId}</strong></td>
+            <td>
+              <strong>${r.victimName || 'Victim'}</strong> (${r.victimGender || 'N/A'}, ${r.victimAge || 'N/A'})<br>
+              <small style="color:#64748b;">${r.victimLocation}</small><br>
+              <small>Phone: <strong>${r.victimPhone || 'N/A'}</strong></small>
+            </td>
+            <td><span style="font-weight:600; color:#1e3a8a;">${r.requestType}</span></td>
+            <td>${r.requestDate}</td>
+            <td style="font-size:0.875rem; max-width:240px;">${r.details}</td>
+            <td>${getStatusBadge(r.status)}</td>
+            <td>
+              <button class="btn btn-primary btn-sm" onclick="openVictimStatusModal('${r.requestId}')">&#9999; Update Status</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    async function loadCampIncidents(campId) {
+      const res = await apiRequest(`/reports/camp/${campId}`);
+      if (res.success && res.data) {
+        campIncidents = res.data;
+        const tbody = document.getElementById('mgr-incidents-tbody');
+        if (campIncidents.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No incident reports logged for this camp.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = campIncidents.map(inc => `
+          <tr>
+            <td><strong>${inc.reportId}</strong></td>
+            <td><span class="badge badge-pending" style="background:#fee2e2; color:#991b1b; border-color:#fecaca;">${inc.reportType}</span></td>
+            <td>${inc.reportDate}</td>
+            <td style="font-size:0.875rem;">${inc.details}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function updateAnalytics() {
+      if (!currentCamp) return;
+      const totalCap = currentCamp.capacity || 0;
+      const avail = currentCamp.availableSpace || 0;
+      const occupied = Math.max(0, totalCap - avail);
+      const pct = totalCap > 0 ? Math.round((occupied / totalCap) * 100) : 0;
+
+      document.getElementById('analytics-camp-heading').textContent = `${currentCamp.campName} - Status Report`;
+      document.getElementById('analytics-date').textContent = `Generated: ${new Date().toLocaleDateString('en-GB')}`;
+
+      document.getElementById('an-cap').textContent = totalCap;
+      document.getElementById('an-avail').textContent = avail;
+      document.getElementById('an-occ').textContent = occupied;
+      document.getElementById('an-pct').textContent = `${pct}%`;
+
+      document.getElementById('an-total-req').textContent = campRequests.length;
+      document.getElementById('an-prog-req').textContent = campRequests.filter(r => r.status.toLowerCase() === 'in-progress').length;
+      document.getElementById('an-res-req').textContent = campRequests.filter(r => r.status.toLowerCase() === 'resolved').length;
+      document.getElementById('an-inc-count').textContent = campIncidents.length;
+    }
+
+    function openVictimStatusModal(reqId) {
+      const req = campRequests.find(r => r.requestId === reqId);
+      if (!req) return;
+      document.getElementById('vst-req-id').value = req.requestId;
+      document.getElementById('vst-summary').innerHTML = `
+        <strong>Victim:</strong> ${req.victimName} (${req.victimPhone})<br>
+        <strong>Aid:</strong> ${req.requestType} | <strong>Current Status:</strong> ${req.status}
+      `;
+      document.getElementById('vst-status').value = req.status;
+      openModal('modal-victim-status');
+    }
+
+    document.getElementById('form-victim-status').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const requestId = document.getElementById('vst-req-id').value;
+      const status = document.getElementById('vst-status').value;
+      const notes = document.getElementById('vst-notes').value.trim();
+
+      try {
+        const res = await apiRequest(`/requests/${requestId}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status, notes })
+        });
+        if (res.success) {
+          showToast('Status updated successfully', 'success');
+          closeModal('modal-victim-status');
+          loadCampRequests(currentCamp.campId);
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    document.getElementById('form-update-capacity').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentCamp) return;
+
+      const capacity = parseInt(document.getElementById('uc-capacity').value, 10);
+      const availableSpace = parseInt(document.getElementById('uc-available').value, 10);
+
+      try {
+        const res = await apiRequest(`/camps/${currentCamp.campId}/capacity`, {
+          method: 'PUT',
+          body: JSON.stringify({ capacity, availableSpace })
+        });
+        if (res.success) {
+          showToast('Camp capacity updated successfully', 'success');
+          closeModal('modal-update-capacity');
+          loadManagerData();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    document.getElementById('form-update-supplies').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentCamp) return;
+
+      const supplies = document.getElementById('us-supplies').value.trim();
+      try {
+        const res = await apiRequest(`/camps/${currentCamp.campId}/supplies`, {
+          method: 'PUT',
+          body: JSON.stringify({ supplies })
+        });
+        if (res.success) {
+          showToast('Supplies inventory updated successfully', 'success');
+          closeModal('modal-update-supplies');
+          loadManagerData();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    document.getElementById('form-file-incident').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentCamp) return;
+
+      const payload = {
+        campId: currentCamp.campId,
+        reportType: document.getElementById('fi-type').value,
+        details: document.getElementById('fi-details').value.trim()
+      };
+
+      try {
+        const res = await apiRequest('/reports', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        if (res.success) {
+          showToast('Incident report logged & notified to Central Admin', 'success');
+          closeModal('modal-file-incident');
+          document.getElementById('form-file-incident').reset();
+          loadCampIncidents(currentCamp.campId);
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', initManagerDashboard);
+  </script>
+</body>
+</html>

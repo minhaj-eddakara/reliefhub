@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - ReliefHub Disaster Management System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #1e3a8a 100%); min-height: 100vh;">
+
+  <!-- Simple Header -->
+  <header style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;" class="container">
+    <a href="index.html" class="brand" style="color:#fff;">
+      <div class="brand-icon">&#9875;</div>
+      <div>
+        <span>ReliefHub</span>
+        <span class="brand-tag" style="color:#cbd5e1;">Portal Access</span>
+      </div>
+    </a>
+    <a href="index.html" class="btn btn-outline btn-sm" style="color:#fff; border-color:rgba(255,255,255,0.3);">&#8592; Back to Home</a>
+  </header>
+
+  <!-- Login Card Section -->
+  <main class="auth-page">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h2 style="font-size:1.75rem; font-weight:800; color:#0f172a;">Sign In to ReliefHub</h2>
+        <p style="color:#64748b; font-size:0.9rem; margin-top:0.25rem;">Enter your credentials to access your relief dashboard</p>
+      </div>
+
+      <!-- Quick Demo Login Bar for Testing / Evaluation -->
+      <div class="demo-credentials-box">
+        <h4>
+          <span>&#9889; Quick Demo Credentials</span>
+          <span style="font-size:0.75rem; color:#64748b;">Click to auto-fill</span>
+        </h4>
+        <div class="demo-btn-group">
+          <button type="button" class="btn btn-outline btn-sm" style="flex:1;" onclick="quickFillLogin('admin')">Admin</button>
+          <button type="button" class="btn btn-outline btn-sm" style="flex:1;" onclick="quickFillLogin('manager')">Camp Mgr</button>
+          <button type="button" class="btn btn-outline btn-sm" style="flex:1;" onclick="quickFillLogin('victim')">Victim</button>
+        </div>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input type="email" id="email" class="form-control" placeholder="name@domain.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" id="btn-login-submit" class="btn btn-primary btn-lg" style="width:100%; margin-top:0.5rem;">
+          Sign In
+        </button>
+      </form>
+
+      <div style="text-align:center; margin-top:1.5rem; font-size:0.9rem; color:#64748b;">
+        Victim needing emergency assistance? <br>
+        <a href="register.html" style="font-weight:600; color:#1e3a8a;">Register Here for Relief Services &rarr;</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/main.js"></script>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const submitBtn = document.getElementById('btn-login-submit');
+
+      if (!email || !password) {
+        showToast('Please fill in both email and password', 'warning');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Authenticating...';
+
+      try {
+        const res = await apiRequest('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password })
+        });
+
+        if (res.success && res.data) {
+          setStoredUser(res.data);
+          showToast(`Welcome back, ${res.data.name}!`, 'success');
+          setTimeout(() => {
+            redirectToRoleDashboard(res.data.role);
+          }, 400);
+        } else {
+          showToast(res.message || 'Login failed', 'error');
+        }
+      } catch (err) {
+        showToast(err.message || 'Login failed. Please check credentials.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>

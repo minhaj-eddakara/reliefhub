@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Victim Assistance Portal - ReliefHub</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Emergency Topbar -->
+  <aside class="emergency-topbar" style="background: linear-gradient(90deg, #1e3a8a, #2563eb);">
+    <div class="live-pulse">
+      <div class="pulse-dot"></div>
+      <span>Emergency Relief Helpline Active: You Are Not Alone</span>
+    </div>
+    <div class="contacts">
+      <span class="contact-item">Emergency SOS: <strong>112</strong></span>
+      <span class="contact-item">District Disaster Cell: <strong>1077</strong></span>
+      <span class="contact-item">Ambulance: <strong>108</strong></span>
+    </div>
+  </aside>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container-fluid nav-content">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">&#9875;</div>
+        <div>
+          <span>ReliefHub</span>
+          <span class="brand-tag">Victim Assistance Portal</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <div class="user-pill">
+          <div class="user-avatar" id="vic-avatar">V</div>
+          <span id="vic-name">Victim Portal</span>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="logoutUser()">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div style="font-size:0.85rem; color:#94a3b8;">Victim Profile ID</div>
+        <div style="font-weight:700; color:#fff; font-size:1.1rem;" id="side-vic-id">Loading...</div>
+        <span class="sidebar-role-badge badge-victim">Registered Citizen</span>
+      </div>
+
+      <ul class="sidebar-nav">
+        <li>
+          <a href="#request-aid" class="active" onclick="switchTab('request-aid', this)">
+            <span>&#9888;</span> Request Emergency Aid
+          </a>
+        </li>
+        <li>
+          <a href="#my-requests" onclick="switchTab('my-requests', this)">
+            <span>&#128221;</span> My Requests &amp; Live Tracking
+          </a>
+        </li>
+        <li>
+          <a href="#services" onclick="switchTab('services', this)">
+            <span>&#127973;</span> Camp Services &amp; Directory
+          </a>
+        </li>
+        <li>
+          <a href="#profile" onclick="switchTab('profile', this)">
+            <span>&#128100;</span> My Details &amp; Location
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="btn btn-emergency btn-sm" style="width:100%;" onclick="switchTab('request-aid', document.querySelector('a[href=\'#request-aid\']'))">
+          &#9888; SOS Help Request
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- =====================================================================
+           TAB 1: REQUEST EMERGENCY AID
+           ===================================================================== -->
+      <section id="tab-request-aid" class="tab-pane active">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">&#9888; Submit Assistance Request</h1>
+            <p class="page-subtitle">Choose the type of relief needed. The system will automatically allocate you to the best relief camp with open capacity.</p>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1.2fr 0.8fr; gap:1.5rem;">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Assistance Application Form</h3>
+            </div>
+            <div class="card-body">
+              <form id="form-submit-aid">
+                <div class="form-group">
+                  <label class="form-label" for="req-type">Required Assistance Category *</label>
+                  <select id="req-type" class="form-select" required>
+                    <option value="">Select Assistance Type</option>
+                    <option value="Rescue">Immediate Evacuation / Rescue</option>
+                    <option value="Shelter">Temporary Shelter / Bedding</option>
+                    <option value="Food">Food Ration &amp; Safe Drinking Water</option>
+                    <option value="Medical Assistance">Emergency Medical Care &amp; Medicines</option>
+                    <option value="Aid">General Relief Goods &amp; Clothing</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="req-pref-camp">Preferred Relief Camp (Optional)</label>
+                  <select id="req-pref-camp" class="form-select">
+                    <option value="">Auto-Assign to nearest camp with open beds (Recommended)</option>
+                  </select>
+                  <small style="color:#64748b;">If left blank, our algorithm assigns the shelter with highest vacancy.</small>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="req-details">Emergency Description &amp; Specific Needs *</label>
+                  <textarea id="req-details" class="form-control" rows="4" placeholder="Mention number of family members, elderly/infants present, medical conditions, or specific rescue landmarks..." required></textarea>
+                </div>
+
+                <button type="submit" id="btn-submit-request" class="btn btn-emergency btn-lg" style="width:100%;">
+                  &#9888; Dispatch Assistance Request
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Helpful Instructions Box -->
+          <div>
+            <div class="card" style="background:#eff6ff; border-color:#bfdbfe;">
+              <div class="card-body">
+                <h4 style="color:#1e3a8a; margin-bottom:0.75rem;">&#128161; What happens next?</h4>
+                <ol style="padding-left:1.25rem; font-size:0.9rem; color:#1e293b; line-height:1.7;">
+                  <li><strong>Instant Processing:</strong> Your request is entered into the central database with a unique Request ID.</li>
+                  <li><strong>Auto-Allocation:</strong> If shelter is requested, available space is reserved for you at a nearby camp.</li>
+                  <li><strong>Manager Notification:</strong> Camp Managers and First Responders receive your contact and address.</li>
+                  <li><strong>Confirm Receipt:</strong> Once help arrives, confirm relief receipt in your tracker tab.</li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="card" style="background:#fef2f2; border-color:#fecaca;">
+              <div class="card-body">
+                <h4 style="color:#991b1b; margin-bottom:0.5rem;">&#9742; Critical Danger?</h4>
+                <p style="font-size:0.875rem; color:#7f1d1d; margin-bottom:0.75rem;">
+                  If floodwaters are rising rapidly or structure is collapsing, dial direct emergency lines immediately:
+                </p>
+                <div style="font-weight:700; font-size:1.1rem; color:#b91c1c;">
+                  Call 112 or 1077 (Toll-Free)
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 2: MY REQUESTS & LIVE TRACKING
+           ===================================================================== -->
+      <section id="tab-my-requests" class="tab-pane" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">My Assistance Requests &amp; Live Status</h1>
+            <p class="page-subtitle">Track real-time progress of your relief requests from submission to delivery.</p>
+          </div>
+          <div>
+            <button class="btn btn-outline btn-sm" onclick="loadMyRequests()">&#8635; Refresh Status</button>
+          </div>
+        </div>
+
+        <div id="requests-list-container">
+          Loading your requests...
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 3: CAMP SERVICES & DIRECTORY
+           ===================================================================== -->
+      <section id="tab-services" class="tab-pane" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">&#127973; Relief Camps &amp; Active Services Directory</h1>
+            <p class="page-subtitle">Browse all relief camps, check vacant beds, and filter by available relief supplies.</p>
+          </div>
+          <div>
+            <select id="services-filter" class="form-select" style="width:180px;" onchange="filterCampsDirectory()">
+              <option value="">All Services</option>
+              <option value="Food">Food Kits</option>
+              <option value="Water">Drinking Water</option>
+              <option value="Medical">Medical Care</option>
+              <option value="Blankets">Thermal Blankets</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Camp Name &amp; ID</th>
+                  <th>Location</th>
+                  <th>Bed Capacity &amp; Space</th>
+                  <th>Available Supplies &amp; Services</th>
+                  <th>Camp Manager</th>
+                  <th>Availability</th>
+                </tr>
+              </thead>
+              <tbody id="directory-camps-tbody">
+                <tr><td colspan="6" style="text-align:center;">Loading relief camps...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 4: MY DETAILS & PROFILE
+           ===================================================================== -->
+      <section id="tab-profile" class="tab-pane" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">My Registration &amp; Location Profile</h1>
+            <p class="page-subtitle">Verify your registered details used by rescue workers to locate you.</p>
+          </div>
+        </div>
+
+        <div class="card" style="max-width:650px;">
+          <div class="card-header">
+            <h3 class="card-title">Citizen Profile Data</h3>
+          </div>
+          <div class="card-body">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; font-size:0.95rem;">
+              <div>
+                <small style="color:#64748b; font-weight:600;">Full Name</small>
+                <div style="font-weight:700;" id="prof-name">-</div>
+              </div>
+              <div>
+                <small style="color:#64748b; font-weight:600;">Assigned Victim ID</small>
+                <div style="font-weight:700; color:#1e3a8a;" id="prof-vic-id">-</div>
+              </div>
+              <div>
+                <small style="color:#64748b; font-weight:600;">Phone / Mobile</small>
+                <div style="font-weight:700;" id="prof-phone">-</div>
+              </div>
+              <div>
+                <small style="color:#64748b; font-weight:600;">Email Address</small>
+                <div style="font-weight:700;" id="prof-email">-</div>
+              </div>
+            </div>
+
+            <div style="margin-top:1.5rem; background:#f8fafc; padding:1.25rem; border-radius:8px; border:1px solid #e2e8f0;">
+              <h4 style="font-size:0.95rem; color:#1e3a8a; margin-bottom:0.5rem;">&#128205; Disaster Location Registered</h4>
+              <p style="margin-bottom:0.25rem;"><strong>Area / Ward:</strong> <span id="prof-location">As registered during onboarding</span></p>
+              <p><strong>House / Landmark:</strong> <span id="prof-house">As registered during onboarding</span></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Modal: Confirm Relief Receipt -->
+  <div class="modal-backdrop" id="modal-confirm-receipt">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">&#9989; Confirm Relief Receipt</h3>
+        <button class="modal-close" onclick="closeModal('modal-confirm-receipt')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-confirm-receipt">
+          <input type="hidden" id="cr-req-id">
+          <p id="cr-summary" style="margin-bottom:1rem; font-size:0.925rem; background:#ecfdf5; color:#065f46; padding:0.85rem; border-radius:8px; border:1px solid #a7f3d0;"></p>
+
+          <div class="form-group">
+            <label class="form-label" for="cr-notes">Feedback / Confirmation Remarks</label>
+            <textarea id="cr-notes" class="form-control" rows="3" placeholder="e.g. Received food packets and clean water safely. Thank you to the response team!"></textarea>
+          </div>
+
+          <div class="modal-footer" style="padding:0; margin-top:1.5rem; background:transparent;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modal-confirm-receipt')">Cancel</button>
+            <button type="submit" class="btn btn-success">&#10004; Confirm Relief Received</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    let currentUser = null;
+    let victimRequests = [];
+    let publicCamps = [];
+
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+      const target = document.getElementById(`tab-${tabId}`);
+      if (target) target.style.display = 'block';
+
+      document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+      if (el) el.classList.add('active');
+    }
+
+    async function initVictimDashboard() {
+      currentUser = await verifyAuth(['VICTIM']);
+      if (!currentUser) return;
+
+      document.getElementById('vic-name').textContent = currentUser.name;
+      document.getElementById('vic-avatar').textContent = currentUser.name.charAt(0);
+      document.getElementById('side-vic-id').textContent = currentUser.victimId || `User #${currentUser.userId}`;
+
+      // Populate profile
+      document.getElementById('prof-name').textContent = currentUser.name;
+      document.getElementById('prof-vic-id').textContent = currentUser.victimId || 'N/A';
+      document.getElementById('prof-phone').textContent = currentUser.phone;
+      document.getElementById('prof-email').textContent = currentUser.email;
+
+      await Promise.all([
+        loadMyRequests(),
+        loadCampsDirectory()
+      ]);
+    }
+
+    async function loadMyRequests() {
+      const container = document.getElementById('requests-list-container');
+      try {
+        const res = await apiRequest('/requests/my-requests');
+        if (res.success && res.data) {
+          victimRequests = res.data;
+          if (victimRequests.length === 0) {
+            container.innerHTML = `
+              <div class="card" style="text-align:center; padding:3rem 1.5rem;">
+                <div style="font-size:3rem; margin-bottom:1rem;">&#128221;</div>
+                <h3>No Assistance Requests Submitted Yet</h3>
+                <p style="color:#64748b; margin-bottom:1.5rem;">Need rescue, temporary accommodation, or food supplies?</p>
+                <button class="btn btn-emergency" onclick="switchTab('request-aid', document.querySelector('a[href=\\'#request-aid\\']'))">
+                  Submit Assistance Request Now
+                </button>
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = victimRequests.map(r => renderRequestCard(r)).join('');
+        }
+      } catch (err) {
+        container.innerHTML = `<p style="color:#dc2626;">Failed to load requests: ${err.message}</p>`;
+      }
+    }
+
+    function renderRequestCard(r) {
+      // Stepper calculation
+      const st = (r.status || 'Pending').toLowerCase();
+      let step1Class = 'completed'; // Submitted
+      let step2Class = '';          // Assigned
+      let step3Class = '';          // In-Progress
+      let step4Class = '';          // Resolved
+
+      if (st === 'assigned') {
+        step2Class = 'active';
+      } else if (st === 'in-progress' || st === 'in_progress') {
+        step2Class = 'completed';
+        step3Class = 'active';
+      } else if (st === 'resolved' || st === 'completed') {
+        step2Class = 'completed';
+        step3Class = 'completed';
+        step4Class = 'completed';
+      } else {
+        step1Class = 'active';
+      }
+
+      const canConfirmReceipt = (st !== 'resolved' && st !== 'completed');
+
+      return `
+        <div class="card" style="margin-bottom:1.75rem;">
+          <div class="card-header" style="background:#f8fafc;">
+            <div>
+              <span style="font-size:0.8rem; font-weight:700; color:#64748b; text-transform:uppercase;">Request ID:</span>
+              <span style="font-size:1.15rem; font-weight:800; color:#1e3a8a; margin-left:0.35rem;">${r.requestId}</span>
+              <span style="margin-left:0.75rem;">${getStatusBadge(r.status)}</span>
+            </div>
+            <div>
+              <span style="font-size:0.875rem; color:#64748b;">Filed on: <strong>${r.requestDate}</strong></span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Stepper Progress Tracker -->
+            <div class="stepper">
+              <div class="step-item ${step1Class}">
+                <div class="step-circle">&#10003;</div>
+                <div class="step-title">Submitted</div>
+              </div>
+              <div class="step-item ${step2Class}">
+                <div class="step-circle">2</div>
+                <div class="step-title">Assigned to Camp</div>
+              </div>
+              <div class="step-item ${step3Class}">
+                <div class="step-circle">3</div>
+                <div class="step-title">In-Progress</div>
+              </div>
+              <div class="step-item ${step4Class}">
+                <div class="step-circle">4</div>
+                <div class="step-title">Resolved / Delivered</div>
+              </div>
+            </div>
+
+            <!-- Details Grid -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:1rem; background:#f8fafc; padding:1rem; border-radius:8px;">
+              <div>
+                <small style="color:#64748b; font-weight:600;">Assistance Type</small>
+                <div style="font-weight:700; color:#1e3a8a;">${r.requestType}</div>
+              </div>
+              <div>
+                <small style="color:#64748b; font-weight:600;">Assigned Relief Camp</small>
+                <div style="font-weight:700;">${r.campName || '<span style="color:#d97706;">Pending Allocation</span>'}</div>
+              </div>
+              <div>
+                <small style="color:#64748b; font-weight:600;">Camp Location</small>
+                <div style="font-size:0.875rem;">${r.campLocation || 'Will be displayed upon assignment'}</div>
+              </div>
+            </div>
+
+            <div style="margin-bottom:1rem; font-size:0.925rem;">
+              <strong>Details:</strong> ${r.details || 'None provided.'}
+            </div>
+
+            <!-- Action Button for Victim -->
+            ${canConfirmReceipt ? `
+              <div style="text-align:right; border-top:1px solid #e2e8f0; padding-top:1rem; margin-top:1rem;">
+                <button class="btn btn-success btn-sm" onclick="openConfirmReceiptModal('${r.requestId}')">
+                  &#9989; Confirm Relief Received
+                </button>
+              </div>
+            ` : `
+              <div style="border-top:1px solid #e2e8f0; padding-top:0.75rem; margin-top:1rem; color:#059669; font-weight:600; font-size:0.9rem;">
+                &#10004; Relief receipt confirmed and closed.
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadCampsDirectory() {
+      try {
+        const res = await apiRequest('/camps');
+        if (res.success && res.data) {
+          publicCamps = res.data;
+          renderCampsDirectory(publicCamps);
+          populateCampSelection(publicCamps);
+        }
+      } catch (err) {
+        console.warn('Failed to load camps directory:', err);
+      }
+    }
+
+    function populateCampSelection(camps) {
+      const select = document.getElementById('req-pref-camp');
+      if (!select) return;
+      const opts = camps.map(c => `<option value="${c.campId}">${c.campName} (${c.availableSpace} beds open)</option>`).join('');
+      select.innerHTML = '<option value="">Auto-Assign to nearest camp with open beds (Recommended)</option>' + opts;
+    }
+
+    function renderCampsDirectory(camps) {
+      const tbody = document.getElementById('directory-camps-tbody');
+      if (!tbody) return;
+      if (camps.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No relief camps active.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = camps.map(c => {
+        const occupied = c.capacity - c.availableSpace;
+        const statusBadge = c.availableSpace > 0 
+          ? `<span class="badge badge-resolved">${c.availableSpace} Beds Open</span>`
+          : `<span class="badge badge-pending" style="background:#fee2e2; color:#991b1b; border-color:#fecaca;">Full</span>`;
+
+        return `
+          <tr>
+            <td><strong>${c.campName}</strong><br><small style="color:#64748b;">ID: ${c.campId}</small></td>
+            <td>${c.location}</td>
+            <td style="min-width:180px;">${renderCapacityBar(occupied, c.capacity)}</td>
+            <td style="font-size:0.85rem; max-width:240px; color:#475569;">${c.supplies}</td>
+            <td><strong>${c.managerName || 'Assigned'}</strong><br><small style="color:#64748b;">${c.managerPhone || 'N/A'}</small></td>
+            <td>${statusBadge}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterCampsDirectory() {
+      const filter = document.getElementById('services-filter').value.toLowerCase();
+      if (!filter) {
+        renderCampsDirectory(publicCamps);
+      } else {
+        const filtered = publicCamps.filter(c => c.supplies.toLowerCase().includes(filter));
+        renderCampsDirectory(filtered);
+      }
+    }
+
+    // Submit Request
+    document.getElementById('form-submit-aid').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('btn-submit-request');
+      const payload = {
+        requestType: document.getElementById('req-type').value,
+        preferredCampId: document.getElementById('req-pref-camp').value || null,
+        details: document.getElementById('req-details').value.trim()
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting Emergency Request...';
+
+      try {
+        const res = await apiRequest('/requests', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        if (res.success && res.data) {
+          showToast(`Assistance request logged! ID: ${res.data.requestId}`, 'success');
+          document.getElementById('form-submit-aid').reset();
+          await loadMyRequests();
+          switchTab('my-requests', document.querySelector('a[href=\'#my-requests\']'));
+        }
+      } catch (err) {
+        showToast(err.message || 'Submission failed. Please check inputs.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Dispatch Assistance Request';
+      }
+    });
+
+    // Confirm Relief Receipt Modal & Action
+    function openConfirmReceiptModal(reqId) {
+      const req = victimRequests.find(r => r.requestId === reqId);
+      if (!req) return;
+      document.getElementById('cr-req-id').value = req.requestId;
+      document.getElementById('cr-summary').innerHTML = `
+        Confirming receipt of: <strong>${req.requestType}</strong> (Request ID: ${req.requestId})<br>
+        Assigned Camp: <strong>${req.campName || 'Disaster Team'}</strong>
+      `;
+      openModal('modal-confirm-receipt');
+    }
+
+    document.getElementById('form-confirm-receipt').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const reqId = document.getElementById('cr-req-id').value;
+      const notes = document.getElementById('cr-notes').value.trim();
+
+      try {
+        const res = await apiRequest(`/requests/${reqId}/confirm-receipt`, {
+          method: 'POST',
+          body: JSON.stringify({ confirmationNotes: notes || 'Relief goods and accommodation safely received by victim.' })
+        });
+
+        if (res.success) {
+          showToast('Relief receipt recorded. Glad you are safe!', 'success');
+          closeModal('modal-confirm-receipt');
+          await loadMyRequests();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', initVictimDashboard);
+  </script>
+</body>
+</html>

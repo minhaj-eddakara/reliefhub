@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - ReliefHub</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Emergency Topbar -->
+  <aside class="emergency-topbar">
+    <div class="live-pulse">
+      <div class="pulse-dot"></div>
+      <span>ReliefHub Central Command Active</span>
+    </div>
+    <div class="contacts">
+      <span class="contact-item">Emergency Control Room: <strong>1077</strong></span>
+      <span class="contact-item">NDRF Field Dispatch: <strong>112</strong></span>
+    </div>
+  </aside>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container-fluid nav-content">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">&#9875;</div>
+        <div>
+          <span>ReliefHub</span>
+          <span class="brand-tag">Administrator Command</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <div class="user-pill">
+          <div class="user-avatar" id="admin-avatar">A</div>
+          <span id="admin-name">State Disaster Admin</span>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="logoutUser()">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div style="font-size:0.85rem; color:#94a3b8;">Current Access</div>
+        <div style="font-weight:700; color:#fff; font-size:1.05rem;">Command Console</div>
+        <span class="sidebar-role-badge badge-admin">Super Admin</span>
+      </div>
+
+      <ul class="sidebar-nav">
+        <li>
+          <a href="#overview" class="active" onclick="switchTab('overview', this)">
+            <span>&#128202;</span> Executive Overview
+          </a>
+        </li>
+        <li>
+          <a href="#requests" onclick="switchTab('requests', this)">
+            <span>&#128221;</span> Request Oversight
+          </a>
+        </li>
+        <li>
+          <a href="#camps" onclick="switchTab('camps', this)">
+            <span>&#127973;</span> Camp Oversight
+          </a>
+        </li>
+        <li>
+          <a href="#users" onclick="switchTab('users', this)">
+            <span>&#128101;</span> User Management
+          </a>
+        </li>
+        <li>
+          <a href="#reports" onclick="switchTab('reports', this)">
+            <span>&#128196;</span> Reports &amp; Analytics
+          </a>
+        </li>
+        <li>
+          <a href="#settings" onclick="switchTab('settings', this)">
+            <span>&#9881;</span> Account Settings
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="btn btn-outline btn-sm" style="width:100%; color:#cbd5e1; border-color:#334155;" onclick="refreshAdminData()">
+          &#8635; Refresh Data
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- =====================================================================
+           TAB 1: EXECUTIVE OVERVIEW
+           ===================================================================== -->
+      <section id="tab-overview" class="tab-pane active">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Executive Disaster Response Overview</h1>
+            <p class="page-subtitle">Real-time aggregated metrics across all relief camps, requests, and victim allocations.</p>
+          </div>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-camp')">+ Register Relief Camp</button>
+            <button class="btn btn-emergency btn-sm" onclick="switchTab('requests', document.querySelector('a[href=\'#requests\']'))">&#9888; Prioritize Urgent Requests</button>
+          </div>
+        </div>
+
+        <!-- KPI Metrics Grid -->
+        <div class="kpi-grid">
+          <div class="stat-card stat-primary">
+            <div class="stat-header">
+              <span class="stat-label">Total Assistance Requests</span>
+              <div class="stat-icon">&#128221;</div>
+            </div>
+            <div class="stat-value" id="ov-total-req">...</div>
+            <div class="stat-help" id="ov-pending-req">Pending: ...</div>
+          </div>
+
+          <div class="stat-card stat-warning">
+            <div class="stat-header">
+              <span class="stat-label">Active / In-Progress</span>
+              <div class="stat-icon">&#9203;</div>
+            </div>
+            <div class="stat-value" id="ov-active-req">...</div>
+            <div class="stat-help">Operations being executed</div>
+          </div>
+
+          <div class="stat-card stat-success">
+            <div class="stat-header">
+              <span class="stat-label">Resolved Requests</span>
+              <div class="stat-icon">&#9989;</div>
+            </div>
+            <div class="stat-value" id="ov-resolved-req">...</div>
+            <div class="stat-help">Relief delivered and confirmed</div>
+          </div>
+
+          <div class="stat-card stat-info">
+            <div class="stat-header">
+              <span class="stat-label">Shelter Capacity</span>
+              <div class="stat-icon">&#128719;</div>
+            </div>
+            <div class="stat-value" id="ov-avail-beds">...</div>
+            <div class="stat-help" id="ov-total-cap">Available of ... Total Beds</div>
+          </div>
+        </div>
+
+        <!-- Quick Summary Tables -->
+        <div style="display:grid; grid-template-columns: 1.2fr 0.8fr; gap:1.5rem;">
+          <!-- Recent Requests -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">&#128221; Recent Emergency Requests</h3>
+              <a href="#requests" style="font-size:0.85rem; font-weight:600;" onclick="switchTab('requests', document.querySelector('a[href=\'#requests\']'))">View All &rarr;</a>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Victim</th>
+                    <th>Type</th>
+                    <th>Assigned Camp</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="ov-recent-requests-tbody">
+                  <tr><td colspan="5" style="text-align:center;">Loading requests...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Camp Occupancy Snapshot -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">&#127973; Camp Occupancies</h3>
+              <a href="#camps" style="font-size:0.85rem; font-weight:600;" onclick="switchTab('camps', document.querySelector('a[href=\'#camps\']'))">Manage &rarr;</a>
+            </div>
+            <div class="card-body" id="ov-camps-list">
+              Loading camps...
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 2: REQUEST OVERSIGHT
+           ===================================================================== -->
+      <section id="tab-requests" class="tab-pane" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Request Oversight &amp; Allocation</h1>
+            <p class="page-subtitle">Review incoming victim requests, prioritize emergency operations, and assign or re-assign to relief camps.</p>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <select id="filter-request-status" class="form-select" style="width:160px;" onchange="filterRequestsTable()">
+              <option value="">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Assigned">Assigned</option>
+              <option value="In-Progress">In-Progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Victim Details</th>
+                  <th>Aid Type</th>
+                  <th>Request Date</th>
+                  <th>Assigned Camp</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="requests-table-body">
+                <tr><td colspan="7" style="text-align:center;">Loading requests...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 3: CAMP OVERSIGHT
+           ===================================================================== -->
+      <section id="tab-camps" class="tab-pane" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Camp Oversight &amp; Resource Management</h1>
+            <p class="page-subtitle">Master edit relief camps, monitor capacities, and verify manager assignments.</p>
+          </div>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-camp')">+ Register New Camp</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Camp ID</th>
+                  <th>Camp Name &amp; Location</th>
+                  <th>Capacity &amp; Occupancy</th>
+                  <th>Supplies Inventory</th>
+                  <th>Assigned Manager</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="camps-table-body">
+                <tr><td colspan="6" style="text-align:center;">Loading camps...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 4: USER MANAGEMENT
+           ===================================================================== -->
+      <section id="tab-users" class="tab-pane" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">User Management</h1>
+            <p class="page-subtitle">Manage Camp Managers and Victim accounts across the system.</p>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <select id="filter-user-role" class="form-select" style="width:160px;" onchange="loadUsersTable()">
+              <option value="">All Roles</option>
+              <option value="CAMP_MANAGER">Camp Managers</option>
+              <option value="VICTIM">Victims</option>
+              <option value="ADMIN">Administrators</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-manager')">+ Add Camp Manager</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Role</th>
+                  <th>Associated Camp / Victim ID</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                <tr><td colspan="7" style="text-align:center;">Loading users...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 5: REPORTS & ANALYTICS
+           ===================================================================== -->
+      <section id="tab-reports" class="tab-pane" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Consolidated Reports &amp; Incident Logs</h1>
+            <p class="page-subtitle">Generate official disaster management reports, occupancy summaries, and external agency logs.</p>
+          </div>
+          <div>
+            <button class="btn btn-outline btn-sm" onclick="window.print()">&#128424; Print / Export Report</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-report')">+ File New Report</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">All District Reports &amp; Incidents</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Report ID</th>
+                  <th>Associated Camp</th>
+                  <th>Report Type</th>
+                  <th>Date</th>
+                  <th>Details &amp; Action Taken</th>
+                </tr>
+              </thead>
+              <tbody id="reports-table-body">
+                <tr><td colspan="5" style="text-align:center;">Loading reports...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           TAB 6: ACCOUNT SETTINGS
+           ===================================================================== -->
+      <section id="tab-settings" class="tab-pane" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Account Settings</h1>
+            <p class="page-subtitle">Update administrator security credentials.</p>
+          </div>
+        </div>
+
+        <div class="card" style="max-width:550px;">
+          <div class="card-header">
+            <h3 class="card-title">Change Password</h3>
+          </div>
+          <div class="card-body">
+            <form id="admin-change-password-form">
+              <div class="form-group">
+                <label class="form-label" for="current-password">Current Password</label>
+                <input type="password" id="current-password" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="new-password">New Password (min 6 chars)</label>
+                <input type="password" id="new-password" class="form-control" minlength="6" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="confirm-password">Confirm New Password</label>
+                <input type="password" id="confirm-password" class="form-control" minlength="6" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Update Password</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- =====================================================================
+       MODALS
+       ===================================================================== -->
+
+  <!-- Modal: Assign / Re-assign Request to Camp -->
+  <div class="modal-backdrop" id="modal-assign-camp">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">&#127973; Assign Request to Relief Camp</h3>
+        <button class="modal-close" onclick="closeModal('modal-assign-camp')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-assign-camp">
+          <input type="hidden" id="assign-request-id">
+          <p id="assign-request-summary" style="margin-bottom:1rem; font-size:0.9rem; background:#f8fafc; padding:0.75rem; border-radius:6px;"></p>
+          
+          <div class="form-group">
+            <label class="form-label" for="assign-select-camp">Select Relief Camp</label>
+            <select id="assign-select-camp" class="form-select" required>
+              <option value="">Choose camp...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="assign-select-status">Update Status</label>
+            <select id="assign-select-status" class="form-select">
+              <option value="Assigned">Assigned</option>
+              <option value="In-Progress">In-Progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+          </div>
+
+          <div class="modal-footer" style="padding:0; margin-top:1.5rem; background:transparent;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modal-assign-camp')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Confirm Assignment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Master Edit Camp -->
+  <div class="modal-backdrop" id="modal-edit-camp">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">&#9999; Master Edit Camp Record</h3>
+        <button class="modal-close" onclick="closeModal('modal-edit-camp')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-edit-camp">
+          <input type="hidden" id="edit-camp-id">
+
+          <div class="form-group">
+            <label class="form-label" for="edit-camp-name">Camp Name</label>
+            <input type="text" id="edit-camp-name" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-camp-location">Location / Area</label>
+            <input type="text" id="edit-camp-location" class="form-control" required>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="edit-camp-capacity">Total Capacity (Beds)</label>
+              <input type="number" id="edit-camp-capacity" class="form-control" min="1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-camp-available">Available Space (Beds)</label>
+              <input type="number" id="edit-camp-available" class="form-control" min="0" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-camp-supplies">Supplies &amp; Resources Details</label>
+            <textarea id="edit-camp-supplies" class="form-control" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-camp-manager">Assign Camp Manager</label>
+            <select id="edit-camp-manager" class="form-select">
+              <option value="">Unassigned</option>
+            </select>
+          </div>
+
+          <div class="modal-footer" style="padding:0; margin-top:1.5rem; background:transparent;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modal-edit-camp')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add New Camp -->
+  <div class="modal-backdrop" id="modal-add-camp">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">+ Register New Relief Camp</h3>
+        <button class="modal-close" onclick="closeModal('modal-add-camp')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-add-camp">
+          <div class="form-group">
+            <label class="form-label" for="add-camp-id">Camp ID (e.g., CAMP-03)</label>
+            <input type="text" id="add-camp-id" class="form-control" placeholder="CAMP-03" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-camp-name">Camp Name</label>
+            <input type="text" id="add-camp-name" class="form-control" placeholder="e.g. Edakkara Relief Centre" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-camp-location">Location / Landmark</label>
+            <input type="text" id="add-camp-location" class="form-control" placeholder="e.g. Edakkara Town Hall" required>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="add-camp-capacity">Total Bed Capacity</label>
+              <input type="number" id="add-camp-capacity" class="form-control" value="100" min="1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="add-camp-available">Initial Available Beds</label>
+              <input type="number" id="add-camp-available" class="form-control" value="100" min="0" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-camp-supplies">Supplies Details</label>
+            <textarea id="add-camp-supplies" class="form-control" placeholder="Food Kits: 100, Water: 500L, Blankets: 80" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-camp-manager">Assign Camp Manager</label>
+            <select id="add-camp-manager" class="form-select">
+              <option value="">Unassigned</option>
+            </select>
+          </div>
+
+          <div class="modal-footer" style="padding:0; margin-top:1.5rem; background:transparent;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-camp')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create Camp</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add New Camp Manager -->
+  <div class="modal-backdrop" id="modal-add-manager">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">+ Add New Camp Manager</h3>
+        <button class="modal-close" onclick="closeModal('modal-add-manager')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-add-manager">
+          <div class="form-group">
+            <label class="form-label" for="mgr-name">Full Name</label>
+            <input type="text" id="mgr-name" class="form-control" placeholder="e.g. Suresh Varma" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="mgr-email">Email Address</label>
+            <input type="email" id="mgr-email" class="form-control" placeholder="suresh.manager@reliefhub.org" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="mgr-phone">Phone Number</label>
+            <input type="tel" id="mgr-phone" class="form-control" placeholder="9845011223" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="mgr-password">Initial Password</label>
+            <input type="password" id="mgr-password" class="form-control" value="manager123" required>
+          </div>
+
+          <div class="modal-footer" style="padding:0; margin-top:1.5rem; background:transparent;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-manager')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create Manager</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: File Report -->
+  <div class="modal-backdrop" id="modal-add-report">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">+ File Official Report / Incident</h3>
+        <button class="modal-close" onclick="closeModal('modal-add-report')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-add-report">
+          <div class="form-group">
+            <label class="form-label" for="rep-camp">Associated Camp (Optional)</label>
+            <select id="rep-camp" class="form-select">
+              <option value="">Global / District Consolidated</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="rep-type">Report Type</label>
+            <select id="rep-type" class="form-select" required>
+              <option value="Incident Report">Incident Report</option>
+              <option value="Camp Occupancy">Camp Occupancy</option>
+              <option value="Request Summary">Request Summary</option>
+              <option value="Resource Allocation">Resource Allocation</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="rep-details">Report Details &amp; Directives</label>
+            <textarea id="rep-details" class="form-control" placeholder="Provide full details, incident impact, and actions required..." required></textarea>
+          </div>
+
+          <div class="modal-footer" style="padding:0; margin-top:1.5rem; background:transparent;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-report')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Submit Report</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    let globalCamps = [];
+    let globalRequests = [];
+    let globalManagers = [];
+
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+      const target = document.getElementById(`tab-${tabId}`);
+      if (target) target.style.display = 'block';
+
+      document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+      if (el) el.classList.add('active');
+    }
+
+    async function initAdminDashboard() {
+      const user = await verifyAuth(['ADMIN']);
+      if (!user) return;
+
+      document.getElementById('admin-name').textContent = user.name;
+      document.getElementById('admin-avatar').textContent = user.name.charAt(0);
+
+      await refreshAdminData();
+    }
+
+    async function refreshAdminData() {
+      try {
+        await Promise.all([
+          loadSummary(),
+          loadCamps(),
+          loadRequests(),
+          loadUsersTable(),
+          loadReports()
+        ]);
+        showToast('Admin data synchronized', 'info');
+      } catch (err) {
+        showToast('Error refreshing data: ' + err.message, 'error');
+      }
+    }
+
+    async function loadSummary() {
+      const res = await apiRequest('/reports/summary');
+      if (res.success && res.data) {
+        const s = res.data;
+        document.getElementById('ov-total-req').textContent = s.totalRequests;
+        document.getElementById('ov-pending-req').textContent = `Pending: ${s.pendingRequests}`;
+        document.getElementById('ov-active-req').textContent = s.assignedRequests + s.inProgressRequests;
+        document.getElementById('ov-resolved-req').textContent = s.resolvedRequests;
+        document.getElementById('ov-avail-beds').textContent = s.totalAvailableSpace;
+        document.getElementById('ov-total-cap').textContent = `Available of ${s.totalCapacity} Total Beds (${s.totalOccupied} Occupied)`;
+      }
+    }
+
+    async function loadCamps() {
+      const res = await apiRequest('/camps');
+      if (res.success && res.data) {
+        globalCamps = res.data;
+        renderCampsTable(globalCamps);
+        populateCampDropdowns(globalCamps);
+        renderOverviewCamps(globalCamps);
+      }
+    }
+
+    function renderOverviewCamps(camps) {
+      const container = document.getElementById('ov-camps-list');
+      if (!container) return;
+      if (camps.length === 0) {
+        container.innerHTML = '<p style="color:#64748b;">No active camps registered.</p>';
+        return;
+      }
+      container.innerHTML = camps.map(c => {
+        const occupied = c.capacity - c.availableSpace;
+        return `
+          <div style="margin-bottom:1.25rem;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+              <strong>${c.campName}</strong>
+              <small style="color:#64748b;">${c.location}</small>
+            </div>
+            ${renderCapacityBar(occupied, c.capacity)}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCampsTable(camps) {
+      const tbody = document.getElementById('camps-table-body');
+      if (!tbody) return;
+      if (camps.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No camps found</td></tr>';
+        return;
+      }
+      tbody.innerHTML = camps.map(c => {
+        const occupied = c.capacity - c.availableSpace;
+        return `
+          <tr>
+            <td><strong>${c.campId}</strong></td>
+            <td><strong>${c.campName}</strong><br><small style="color:#64748b;">${c.location}</small></td>
+            <td style="min-width:180px;">${renderCapacityBar(occupied, c.capacity)}</td>
+            <td style="font-size:0.85rem; max-width:260px;">${c.supplies}</td>
+            <td><strong>${c.managerName || '<span style="color:#dc2626;">Unassigned</span>'}</strong><br><small style="color:#64748b;">${c.managerPhone || ''}</small></td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="openMasterEditCamp('${c.campId}')">&#9999; Master Edit</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function loadRequests() {
+      const res = await apiRequest('/requests');
+      if (res.success && res.data) {
+        globalRequests = res.data;
+        renderRequestsTable(globalRequests);
+        renderOverviewRequests(globalRequests.slice(0, 5));
+      }
+    }
+
+    function renderOverviewRequests(requests) {
+      const tbody = document.getElementById('ov-recent-requests-tbody');
+      if (!tbody) return;
+      if (requests.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No requests logged</td></tr>';
+        return;
+      }
+      tbody.innerHTML = requests.map(r => `
+        <tr>
+          <td><strong>${r.requestId}</strong></td>
+          <td>${r.victimName || 'N/A'}<br><small style="color:#64748b;">${r.victimPhone || ''}</small></td>
+          <td>${r.requestType}</td>
+          <td>${r.campName || '<span style="color:#d97706;">Pending Assignment</span>'}</td>
+          <td>${getStatusBadge(r.status)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderRequestsTable(requests) {
+      const tbody = document.getElementById('requests-table-body');
+      if (!tbody) return;
+      if (requests.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No matching requests</td></tr>';
+        return;
+      }
+      tbody.innerHTML = requests.map(r => `
+        <tr>
+          <td><strong>${r.requestId}</strong></td>
+          <td>
+            <strong>${r.victimName || 'Victim'}</strong> (${r.victimGender || 'N/A'}, ${r.victimAge || 'N/A'})<br>
+            <small style="color:#64748b;">${r.victimLocation} | ${r.victimHouse}</small><br>
+            <small>Phone: <strong>${r.victimPhone || 'N/A'}</strong></small>
+          </td>
+          <td><span style="font-weight:600; color:#1e3a8a;">${r.requestType}</span></td>
+          <td>${r.requestDate}</td>
+          <td>${r.campName ? `<strong>${r.campName}</strong>` : '<span style="color:#dc2626; font-weight:600;">Not Assigned</span>'}</td>
+          <td>${getStatusBadge(r.status)}</td>
+          <td>
+            <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" onclick="openAssignCampModal('${r.requestId}')">&#127973; Assign Camp</button>
+              <button class="btn btn-outline btn-sm" onclick="quickUpdateStatus('${r.requestId}', 'Resolved')">&#9989; Resolve</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterRequestsTable() {
+      const st = document.getElementById('filter-request-status').value;
+      if (!st) {
+        renderRequestsTable(globalRequests);
+      } else {
+        const filtered = globalRequests.filter(r => r.status.toLowerCase() === st.toLowerCase());
+        renderRequestsTable(filtered);
+      }
+    }
+
+    async function loadUsersTable() {
+      const roleFilter = document.getElementById('filter-user-role').value;
+      const url = roleFilter ? `/users?role=${roleFilter}` : '/users';
+      const res = await apiRequest(url);
+      if (res.success && res.data) {
+        const users = res.data;
+        const tbody = document.getElementById('users-table-body');
+        if (!tbody) return;
+        if (users.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No users found</td></tr>';
+          return;
+        }
+
+        // Keep manager list updated for dropdowns
+        globalManagers = users.filter(u => u.role === 'CAMP_MANAGER');
+        populateManagerDropdowns(globalManagers);
+
+        tbody.innerHTML = users.map(u => {
+          let roleBadge = `<span class="sidebar-role-badge badge-victim">${u.role}</span>`;
+          if (u.role === 'ADMIN') roleBadge = `<span class="sidebar-role-badge badge-admin">ADMIN</span>`;
+          if (u.role === 'CAMP_MANAGER') roleBadge = `<span class="sidebar-role-badge badge-manager">CAMP MANAGER</span>`;
+
+          const assoc = u.assignedCampName || u.victimId || '-';
+          return `
+            <tr>
+              <td><strong>#${u.userId}</strong></td>
+              <td><strong>${u.name}</strong></td>
+              <td>${u.email}</td>
+              <td>${u.phone}</td>
+              <td>${roleBadge}</td>
+              <td>${assoc}</td>
+              <td>
+                <button class="btn btn-outline btn-sm" style="color:#dc2626; border-color:#fecaca;" onclick="handleDeleteUser(${u.userId}, '${u.name}')">&#128465; Delete</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    async function loadReports() {
+      const res = await apiRequest('/reports');
+      if (res.success && res.data) {
+        const tbody = document.getElementById('reports-table-body');
+        if (!tbody) return;
+        if (res.data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No reports filed yet.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = res.data.map(rep => `
+          <tr>
+            <td><strong>${rep.reportId}</strong></td>
+            <td><strong>${rep.campName}</strong></td>
+            <td><span class="badge badge-assigned">${rep.reportType}</span></td>
+            <td>${rep.reportDate}</td>
+            <td style="font-size:0.875rem;">${rep.details}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function populateCampDropdowns(camps) {
+      const assignSelect = document.getElementById('assign-select-camp');
+      const repSelect = document.getElementById('rep-camp');
+
+      if (assignSelect) {
+        assignSelect.innerHTML = '<option value="">Select a Camp...</option>' + 
+          camps.map(c => `<option value="${c.campId}">${c.campName} (${c.availableSpace} beds open)</option>`).join('');
+      }
+      if (repSelect) {
+        repSelect.innerHTML = '<option value="">District Consolidated / All Camps</option>' + 
+          camps.map(c => `<option value="${c.campId}">${c.campName}</option>`).join('');
+      }
+    }
+
+    function populateManagerDropdowns(managers) {
+      const addSelect = document.getElementById('add-camp-manager');
+      const editSelect = document.getElementById('edit-camp-manager');
+      const opts = '<option value="">Unassigned</option>' + 
+        managers.map(m => `<option value="${m.userId}">${m.name} (${m.email})</option>`).join('');
+      if (addSelect) addSelect.innerHTML = opts;
+      if (editSelect) editSelect.innerHTML = opts;
+    }
+
+    // Modal Actions
+    function openAssignCampModal(reqId) {
+      const req = globalRequests.find(r => r.requestId === reqId);
+      if (!req) return;
+      document.getElementById('assign-request-id').value = req.requestId;
+      document.getElementById('assign-request-summary').innerHTML = `
+        <strong>Assigning:</strong> ${req.requestId} - ${req.victimName} (${req.requestType})<br>
+        <strong>Details:</strong> ${req.details}
+      `;
+      if (req.campId) {
+        document.getElementById('assign-select-camp').value = req.campId;
+      }
+      openModal('modal-assign-camp');
+    }
+
+    document.getElementById('form-assign-camp').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const requestId = document.getElementById('assign-request-id').value;
+      const campId = document.getElementById('assign-select-camp').value;
+      const status = document.getElementById('assign-select-status').value;
+
+      try {
+        const res = await apiRequest(`/requests/${requestId}/assign`, {
+          method: 'PUT',
+          body: JSON.stringify({ campId, status })
+        });
+        if (res.success) {
+          showToast(res.message, 'success');
+          closeModal('modal-assign-camp');
+          refreshAdminData();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    async function quickUpdateStatus(reqId, status) {
+      if (!confirm(`Mark request ${reqId} as ${status}?`)) return;
+      try {
+        const res = await apiRequest(`/requests/${reqId}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status, notes: 'Direct status change by Administrator.' })
+        });
+        if (res.success) {
+          showToast(`Request marked as ${status}`, 'success');
+          refreshAdminData();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function openMasterEditCamp(campId) {
+      const camp = globalCamps.find(c => c.campId === campId);
+      if (!camp) return;
+
+      document.getElementById('edit-camp-id').value = camp.campId;
+      document.getElementById('edit-camp-name').value = camp.campName;
+      document.getElementById('edit-camp-location').value = camp.location;
+      document.getElementById('edit-camp-capacity').value = camp.capacity;
+      document.getElementById('edit-camp-available').value = camp.availableSpace;
+      document.getElementById('edit-camp-supplies').value = camp.supplies;
+      document.getElementById('edit-camp-manager').value = camp.managerId || '';
+
+      openModal('modal-edit-camp');
+    }
+
+    document.getElementById('form-edit-camp').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const campId = document.getElementById('edit-camp-id').value;
+      const payload = {
+        campName: document.getElementById('edit-camp-name').value.trim(),
+        location: document.getElementById('edit-camp-location').value.trim(),
+        capacity: parseInt(document.getElementById('edit-camp-capacity').value, 10),
+        availableSpace: parseInt(document.getElementById('edit-camp-available').value, 10),
+        supplies: document.getElementById('edit-camp-supplies').value.trim(),
+        managerId: document.getElementById('edit-camp-manager').value ? parseInt(document.getElementById('edit-camp-manager').value, 10) : null
+      };
+
+      try {
+        const res = await apiRequest(`/camps/${campId}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload)
+        });
+        if (res.success) {
+          showToast('Camp record updated successfully', 'success');
+          closeModal('modal-edit-camp');
+          refreshAdminData();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    document.getElementById('form-add-camp').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        campId: document.getElementById('add-camp-id').value.trim().toUpperCase(),
+        campName: document.getElementById('add-camp-name').value.trim(),
+        location: document.getElementById('add-camp-location').value.trim(),
+        capacity: parseInt(document.getElementById('add-camp-capacity').value, 10),
+        availableSpace: parseInt(document.getElementById('add-camp-available').value, 10),
+        supplies: document.getElementById('add-camp-supplies').value.trim(),
+        managerId: document.getElementById('add-camp-manager').value ? parseInt(document.getElementById('add-camp-manager').value, 10) : null
+      };
+
+      try {
+        const res = await apiRequest('/camps', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        if (res.success) {
+          showToast('Camp created successfully', 'success');
+          closeModal('modal-add-camp');
+          document.getElementById('form-add-camp').reset();
+          refreshAdminData();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    document.getElementById('form-add-manager').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('mgr-name').value.trim(),
+        email: document.getElementById('mgr-email').value.trim(),
+        phone: document.getElementById('mgr-phone').value.trim(),
+        password: document.getElementById('mgr-password').value,
+        role: 'CAMP_MANAGER'
+      };
+
+      try {
+        const res = await apiRequest('/users', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        if (res.success) {
+          showToast('Camp Manager account created', 'success');
+          closeModal('modal-add-manager');
+          document.getElementById('form-add-manager').reset();
+          loadUsersTable();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    async function handleDeleteUser(userId, name) {
+      if (!confirm(`Are you sure you want to permanently delete user account: ${name}?`)) return;
+      try {
+        const res = await apiRequest(`/users/${userId}`, { method: 'DELETE' });
+        if (res.success) {
+          showToast('User account deleted', 'info');
+          loadUsersTable();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    document.getElementById('form-add-report').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        campId: document.getElementById('rep-camp').value || null,
+        reportType: document.getElementById('rep-type').value,
+        details: document.getElementById('rep-details').value.trim()
+      };
+
+      try {
+        const res = await apiRequest('/reports', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        if (res.success) {
+          showToast('Report filed successfully', 'success');
+          closeModal('modal-add-report');
+          document.getElementById('form-add-report').reset();
+          loadReports();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    document.getElementById('admin-change-password-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const cur = document.getElementById('current-password').value;
+      const nw = document.getElementById('new-password').value;
+      const cnf = document.getElementById('confirm-password').value;
+
+      if (nw !== cnf) {
+        showToast('New passwords do not match', 'warning');
+        return;
+      }
+
+      try {
+        const res = await apiRequest('/auth/change-password', {
+          method: 'POST',
+          body: JSON.stringify({ currentPassword: cur, newPassword: nw })
+        });
+        if (res.success) {
+          showToast('Password changed successfully', 'success');
+          document.getElementById('admin-change-password-form').reset();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', initAdminDashboard);
+  </script>
+</body>
+</html>

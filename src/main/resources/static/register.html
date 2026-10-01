@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Victim Registration - ReliefHub</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #1e3a8a 100%); min-height: 100vh;">
+
+  <!-- Simple Header -->
+  <header style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;" class="container">
+    <a href="index.html" class="brand" style="color:#fff;">
+      <div class="brand-icon">&#9875;</div>
+      <div>
+        <span>ReliefHub</span>
+        <span class="brand-tag" style="color:#cbd5e1;">Victim Registration</span>
+      </div>
+    </a>
+    <a href="login.html" class="btn btn-outline btn-sm" style="color:#fff; border-color:rgba(255,255,255,0.3);">Already Registered? Log In</a>
+  </header>
+
+  <!-- Register Card Section -->
+  <main class="auth-page">
+    <div class="auth-card" style="max-width: 600px;">
+      <div class="auth-header">
+        <h2 style="font-size:1.75rem; font-weight:800; color:#0f172a;">Register for Relief & Shelter</h2>
+        <p style="color:#64748b; font-size:0.9rem; margin-top:0.25rem;">
+          Register to submit assistance requests, receive emergency supplies, and track camp allocations.
+        </p>
+      </div>
+
+      <div style="text-align:right; margin-bottom:1rem;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="prefillSampleVictim()">
+          &#9889; Auto-Fill Sample Data
+        </button>
+      </div>
+
+      <form id="register-form">
+        <!-- Account Details -->
+        <h4 style="font-size:0.95rem; color:#1e3a8a; border-bottom:1px solid #e2e8f0; padding-bottom:0.35rem; margin-bottom:1rem;">
+          1. Contact & Account Information
+        </h4>
+        
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="name">Full Name *</label>
+            <input type="text" id="name" class="form-control" placeholder="e.g. Anand Kumar" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="phone">Phone / Mobile *</label>
+            <input type="tel" id="phone" class="form-control" placeholder="e.g. 9876543210" required>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address *</label>
+            <input type="email" id="email" class="form-control" placeholder="victim@example.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="password">Password (min 6 chars) *</label>
+            <input type="password" id="password" class="form-control" placeholder="••••••••" minlength="6" required>
+          </div>
+        </div>
+
+        <!-- Victim Profile Details -->
+        <h4 style="font-size:0.95rem; color:#1e3a8a; border-bottom:1px solid #e2e8f0; padding-bottom:0.35rem; margin-bottom:1rem; margin-top:1.25rem;">
+          2. Victim Location & Profile
+        </h4>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="age">Age *</label>
+            <input type="number" id="age" class="form-control" placeholder="e.g. 35" min="1" max="120" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="gender">Gender *</label>
+            <select id="gender" class="form-select" required>
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="location">Current Location / Area / Ward *</label>
+          <input type="text" id="location" class="form-control" placeholder="e.g. Edivanna Ward 4, Nilambur" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="house">House / Address / Nearest Landmark *</label>
+          <input type="text" id="house" class="form-control" placeholder="e.g. House #22, Near River Bridge" required>
+        </div>
+
+        <button type="submit" id="btn-register-submit" class="btn btn-emergency btn-lg" style="width:100%; margin-top:0.75rem;">
+          Complete Registration &amp; Access Dashboard
+        </button>
+      </form>
+
+      <div style="text-align:center; margin-top:1.25rem; font-size:0.875rem; color:#64748b;">
+        Staff or Camp Administrator? <a href="login.html" style="font-weight:600; color:#1e3a8a;">Log In Here</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/main.js"></script>
+  <script>
+    function prefillSampleVictim() {
+      const randomSuffix = Math.floor(100 + Math.random() * 900);
+      document.getElementById('name').value = 'Ramesh Menon';
+      document.getElementById('phone').value = '9847112233';
+      document.getElementById('email').value = `ramesh.${randomSuffix}@example.com`;
+      document.getElementById('password').value = 'victim123';
+      document.getElementById('age').value = '38';
+      document.getElementById('gender').value = 'Male';
+      document.getElementById('location').value = 'Chaliyar Ward 2, Nilambur';
+      document.getElementById('house').value = 'House #45, Near Post Office';
+      showToast('Sample registration data populated', 'info');
+    }
+
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('btn-register-submit');
+
+      const payload = {
+        name: document.getElementById('name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        password: document.getElementById('password').value,
+        age: parseInt(document.getElementById('age').value, 10),
+        gender: document.getElementById('gender').value,
+        location: document.getElementById('location').value.trim(),
+        house: document.getElementById('house').value.trim()
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Registering Account...';
+
+      try {
+        const res = await apiRequest('/auth/register', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        if (res.success && res.data) {
+          setStoredUser(res.data);
+          showToast('Registration successful! Redirecting to Victim Portal...', 'success');
+          setTimeout(() => {
+            window.location.href = 'victim-dashboard.html';
+          }, 600);
+        } else {
+          showToast(res.message || 'Registration failed', 'error');
+        }
+      } catch (err) {
+        showToast(err.message || 'Registration failed. Please check your inputs.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Complete Registration & Access Dashboard';
+      }
+    });
+  </script>
+</body>
+</html>

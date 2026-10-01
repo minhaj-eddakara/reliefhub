@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReliefHub - Web-Based Disaster Management System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Emergency Topbar -->
+  <aside class="emergency-topbar" aria-label="Emergency Helplines">
+    <div class="live-pulse">
+      <div class="pulse-dot"></div>
+      <span>ReliefHub Emergency Network Active 24/7</span>
+    </div>
+    <div class="contacts">
+      <span class="contact-item">State Control: <strong>1077</strong></span>
+      <span class="contact-item">Police: <strong>112</strong></span>
+      <span class="contact-item">Ambulance: <strong>108</strong></span>
+      <span class="contact-item">Fire & Rescue: <strong>101</strong></span>
+    </div>
+  </aside>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container nav-content">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">&#9875;</div>
+        <div>
+          <span>ReliefHub</span>
+          <span class="brand-tag">Disaster Management</span>
+        </div>
+      </a>
+      <nav class="nav-links">
+        <a href="#about">About</a>
+        <a href="#camps">Relief Camps</a>
+        <a href="#tracker">Track Request</a>
+        <a href="#contact">Emergency Contact</a>
+      </nav>
+      <div class="nav-actions" id="nav-auth-buttons">
+        <a href="login.html" class="btn btn-outline btn-sm">Log In</a>
+        <a href="register.html" class="btn btn-primary btn-sm">Register as Victim</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="hero-badge">
+            <span>&#9888; Rapid Emergency Relief Coordination</span>
+          </div>
+          <h1 class="hero-title">
+            Fast, Coordinated Aid <br><span>When Disasters Strike.</span>
+          </h1>
+          <p class="hero-subtitle">
+            ReliefHub bridges victims, camp managers, and disaster authorities into a unified digital ecosystem. Submit emergency aid requests, track live statuses, and connect to shelter capacities in real-time.
+          </p>
+          <div class="hero-cta">
+            <a href="register.html" class="btn btn-emergency btn-lg">&#9888; Request Immediate Assistance</a>
+            <a href="login.html" class="btn btn-outline btn-lg" style="color:#fff; border-color:rgba(255,255,255,0.4);">Access Staff Portal</a>
+          </div>
+        </div>
+
+        <!-- Quick Status Tracker Box -->
+        <div class="hero-card" id="tracker">
+          <h3>&#128269; Track Your Request</h3>
+          <p>Already submitted an emergency request? Enter your Request ID below to view real-time rescue and accommodation updates.</p>
+          <div class="tracker-input-group">
+            <input type="text" id="quick-track-id" placeholder="e.g. REQ-1001" aria-label="Request ID">
+            <button class="btn btn-primary" onclick="handleQuickTrack()">Track</button>
+          </div>
+          <div id="tracker-result"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Public Impact & Capacity Metrics -->
+    <section class="container" style="margin-top: -2rem; position: relative; z-index: 10;">
+      <div class="kpi-grid" id="metrics-grid">
+        <div class="stat-card stat-primary">
+          <div class="stat-header">
+            <span class="stat-label">Total Requests</span>
+            <div class="stat-icon">&#128221;</div>
+          </div>
+          <div class="stat-value" id="stat-total-req">...</div>
+          <div class="stat-help">Submitted emergency calls</div>
+        </div>
+
+        <div class="stat-card stat-success">
+          <div class="stat-header">
+            <span class="stat-label">Resolved / Delivered</span>
+            <div class="stat-icon">&#9989;</div>
+          </div>
+          <div class="stat-value" id="stat-resolved-req">...</div>
+          <div class="stat-help">Aided victims confirmed</div>
+        </div>
+
+        <div class="stat-card stat-info">
+          <div class="stat-header">
+            <span class="stat-label">Active Relief Camps</span>
+            <div class="stat-icon">&#127973;</div>
+          </div>
+          <div class="stat-value" id="stat-total-camps">...</div>
+          <div class="stat-help">Equipped shelters in district</div>
+        </div>
+
+        <div class="stat-card stat-warning">
+          <div class="stat-header">
+            <span class="stat-label">Available Beds</span>
+            <div class="stat-icon">&#128719;</div>
+          </div>
+          <div class="stat-value" id="stat-avail-beds">...</div>
+          <div class="stat-help">Immediate vacancy across camps</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Relief Camps Directory & Availability -->
+    <section class="container" id="camps" style="padding: 3rem 1.25rem;">
+      <div class="page-header">
+        <div>
+          <h2 class="page-title">&#127968; Live Relief Camp Directory & Available Space</h2>
+          <p class="page-subtitle">Real-time status of district relief shelters, available accommodations, and on-ground supplies.</p>
+        </div>
+        <div>
+          <button class="btn btn-outline btn-sm" onclick="loadPublicCamps()">&#8635; Refresh Status</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Camp ID & Name</th>
+                <th>Location</th>
+                <th>Capacity & Space</th>
+                <th>Available Supplies</th>
+                <th>Manager Contact</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="public-camps-table-body">
+              <tr>
+                <td colspan="6" style="text-align:center; padding: 2rem;">Loading relief camps data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Mission Section -->
+    <section class="container" id="about" style="padding-bottom: 4rem;">
+      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:2.5rem; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">
+        <h2 style="font-size:1.85rem; font-weight:800; color:#0f172a; margin-bottom:1rem;">About ReliefHub System</h2>
+        <p style="font-size:1.05rem; color:#475569; line-height:1.7; margin-bottom:1.5rem;">
+          Natural and man-made disasters often overwhelm traditional relief pipelines. When communications break down and shelters become crowded, delay in aid can cost lives. ReliefHub replaces fragmented paper-based and manual procedures with a centralized, automated disaster response platform.
+        </p>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1.5rem;">
+          <div style="background:#f8fafc; border-left:4px solid #1e3a8a; padding:1.25rem; border-radius:8px;">
+            <h4 style="font-size:1.1rem; color:#0f172a; margin-bottom:0.5rem;">&#129309; Rapid Victim Registration</h4>
+            <p style="font-size:0.9rem; color:#64748b;">Victims can quickly self-register and request emergency rescue, temporary shelter, food, or medical aid in seconds.</p>
+          </div>
+          <div style="background:#f8fafc; border-left:4px solid #ea580c; padding:1.25rem; border-radius:8px;">
+            <h4 style="font-size:1.1rem; color:#0f172a; margin-bottom:0.5rem;">&#9878; Automated Camp Allocation</h4>
+            <p style="font-size:0.9rem; color:#64748b;">The intelligent allocation engine automatically balances displaced families into shelters with open space, preventing overcrowding.</p>
+          </div>
+          <div style="background:#f8fafc; border-left:4px solid #059669; padding:1.25rem; border-radius:8px;">
+            <h4 style="font-size:1.1rem; color:#0f172a; margin-bottom:0.5rem;">&#128202; End-to-End Transparency</h4>
+            <p style="font-size:0.9rem; color:#64748b;">Live request tracking, arrival confirmations, supply logs, and district-wide reports keep all stakeholders synchronized.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer id="contact">
+    <div class="container">
+      <div class="footer-content">
+        <div>
+          <div class="brand" style="color:#fff;">
+            <div class="brand-icon">&#9875;</div>
+            <span>ReliefHub</span>
+          </div>
+          <p style="font-size:0.875rem; color:#94a3b8; margin-top:0.5rem; max-width:380px;">
+            A Web-Based Disaster Management System developed for effective emergency coordination and victim assistance.
+          </p>
+        </div>
+        <div>
+          <h4 style="color:#fff; font-size:0.95rem; margin-bottom:0.75rem;">Department of Computer Science</h4>
+          <p style="font-size:0.85rem; color:#cbd5e1;">Amal College of Advanced Studies, Nilambur (Autonomous)</p>
+          <p style="font-size:0.85rem; color:#94a3b8;">Major Course: CSC5CJ302 Object-Oriented Programming (Java)</p>
+          <p style="font-size:0.85rem; color:#94a3b8;">Fifth Semester FYUGP</p>
+        </div>
+      </div>
+      <div class="footer-copy">
+        &copy; 2026 ReliefHub Disaster Management System. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    async function loadPublicData() {
+      try {
+        const sumRes = await apiRequest('/public/summary');
+        if (sumRes.success && sumRes.data) {
+          const s = sumRes.data;
+          document.getElementById('stat-total-req').textContent = s.totalRequests;
+          document.getElementById('stat-resolved-req').textContent = s.resolvedRequests;
+          document.getElementById('stat-total-camps').textContent = s.totalCamps;
+          document.getElementById('stat-avail-beds').textContent = s.totalAvailableSpace;
+        }
+      } catch (e) {
+        console.warn('Failed to load metrics:', e);
+      }
+      loadPublicCamps();
+      checkNavbarUser();
+    }
+
+    async function loadPublicCamps() {
+      const tbody = document.getElementById('public-camps-table-body');
+      try {
+        const res = await apiRequest('/public/camps');
+        if (res.success && res.data) {
+          const camps = res.data;
+          if (camps.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No relief camps active at this time.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = camps.map(c => {
+            const occupied = (c.capacity || 0) - (c.availableSpace || 0);
+            const statusLabel = c.availableSpace > 0 
+              ? `<span class="badge badge-resolved">${c.availableSpace} Beds Open</span>`
+              : `<span class="badge badge-pending" style="background:#fee2e2; color:#991b1b; border-color:#fecaca;">Full Capacity</span>`;
+            return `
+              <tr>
+                <td><strong>${c.campName}</strong><br><small style="color:#64748b;">ID: ${c.campId}</small></td>
+                <td>${c.location}</td>
+                <td style="min-width:180px;">${renderCapacityBar(occupied, c.capacity)}</td>
+                <td style="font-size:0.85rem; max-width:240px; color:#475569;">${c.supplies}</td>
+                <td><strong>${c.managerName || 'Assigned'}</strong><br><small style="color:#64748b;">${c.managerPhone || 'N/A'}</small></td>
+                <td>${statusLabel}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#dc2626;">Failed to load relief camp data.</td></tr>';
+      }
+    }
+
+    function checkNavbarUser() {
+      const user = getStoredUser();
+      const navActions = document.getElementById('nav-auth-buttons');
+      if (user && navActions) {
+        let dashLink = 'victim-dashboard.html';
+        if (user.role === 'ADMIN') dashLink = 'admin-dashboard.html';
+        else if (user.role === 'CAMP_MANAGER') dashLink = 'manager-dashboard.html';
+
+        navActions.innerHTML = `
+          <div class="user-pill">
+            <div class="user-avatar">${user.name.charAt(0)}</div>
+            <span>${user.name}</span>
+          </div>
+          <a href="${dashLink}" class="btn btn-primary btn-sm">My Dashboard</a>
+          <button class="btn btn-outline btn-sm" onclick="logoutUser()">Log Out</button>
+        `;
+      }
+    }
+
+    function handleQuickTrack() {
+      const id = document.getElementById('quick-track-id').value;
+      trackRequestPublic(id);
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPublicData);
+  </script>
+</body>
+</html>
