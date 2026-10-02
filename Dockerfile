@@ -1,14 +1,15 @@
 # Multi-stage Docker build for ReliefHub
-FROM eclipse-temurin:21-jdk-alpine AS builder
+# Stage 1: Build the application with Maven
+FROM maven:3.9.9-eclipse-temurin-21-alpine AS builder
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
-# If maven wrapper or mvn installed, or build jar directly
-# We can also use a pre-built JAR or build inside container
+RUN mvn clean package -DskipTests
 
+# Stage 2: Lightweight runtime image
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY target/reliefhub-1.0.0.jar app.jar
+COPY --from=builder /app/target/reliefhub-1.0.0.jar app.jar
 
 ENV PORT=8080
 EXPOSE 8080
